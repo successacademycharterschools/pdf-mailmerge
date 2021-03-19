@@ -1,20 +1,20 @@
-data: Regents_Course_Record.csv
+data: Some.csv
 
 identifier_columns:
-  - "esd_id"
-  - "course_cd"
+  - "col1"
+  - "col2"
 
 filename_columns:
-  - "last_name"
-  - "first_name"
+  - "col3"
+  - "col4"
   - "course_cd"
 
 output_folders:
-  - "school_name"
-  - "course"
+  - "col1"
+  - "col5"
 
 sort:
-  - "last_name"
-  - "first_name"
+  - "col2"
+  - "col3"
 
-template: "regents_letter.html"
+template: "Some_jinja.html"
