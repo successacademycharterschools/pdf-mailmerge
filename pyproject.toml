@@ -1,8 +1,19 @@
 [tool.poetry]
 name = "pdf-mailmerge"
 version = "0.1.0"
-description = "easy command line mail merge to pdf"
-authors = ["Your Name <you@example.com>"]
+description = "Mail merge PDFs and HTML documents from CSV data and Jinja templates"
+authors = ["Joshua Maymir <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/successacademycharterschools/pdf-mailmerge"
+classifiers = [
+    "Topic :: Communications :: Email",
+    "Topic :: Text Processing :: Markup :: HTML",
+    "Environment :: Console",
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Education",
+    "Intended Audience :: Developers"
+]
 
 [tool.poetry.dependencies]
 python = "^3.7.1"
