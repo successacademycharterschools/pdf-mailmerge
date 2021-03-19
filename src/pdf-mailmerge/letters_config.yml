@@ -1,0 +1,20 @@
+data: Regents_Course_Record.csv
+
+identifier_columns:
+  - "esd_id"
+  - "course_cd"
+
+filename_columns:
+  - "last_name"
+  - "first_name"
+  - "course_cd"
+
+output_folders:
+  - "school_name"
+  - "course"
+
+sort:
+  - "last_name"
+  - "first_name"
+
+template: "regents_letter.html"
