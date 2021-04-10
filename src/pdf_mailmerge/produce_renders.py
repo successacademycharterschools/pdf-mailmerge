@@ -162,5 +162,8 @@ def process_batch(config_file="letters_config.yml"):
     for render in tqdm(renders):
         generate_card(render)
 
+def render(config):
+    process_batch(config_file = config)
+
 if __name__ == "__main__":
-    process_batch()
+    render()
