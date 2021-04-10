@@ -26,10 +26,10 @@ def pdf(directory):
 
         # Windows uses back slashes
         # Use os.path.join Join method
-        in_path_filename = render["directory"] + "/" + render["filename"]
+        in_path_filename = os.path.join(render["directory"], render["filename"])
 
-        out_path = "pdfs/" + render["directory"].replace(dir, "")
-        out_path_filename = out_path + "/" + render["filename"].replace('html', 'pdf')
+        out_path = os.path.join("pdfs", render["directory"].replace(dir, ""))
+        out_path_filename = os.path.join(out_path, render["filename"].replace('html', 'pdf'))
 
         # create school dir if not exists
         if not os.path.exists(out_path):
