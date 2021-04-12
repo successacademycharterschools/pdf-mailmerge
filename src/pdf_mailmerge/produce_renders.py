@@ -1,12 +1,10 @@
 import os
-import re
-import json
-import base64
 import pandas as pd
 import numpy as np
 import yaml
 from tqdm import tqdm
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+import argpase
 
 def populate_jinja_template(pk, template, filename, data, directories):
     """
@@ -20,10 +18,10 @@ def populate_jinja_template(pk, template, filename, data, directories):
     # Step 5) Then create render in directory.
 
     # Step 1
-    this_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    this_dir = os.path.dirname(os.path.abspath(__file__))
 
     # Step 2
-    path = this_dir + '/output/html'
+    path = this_dir + 'html'
 
     if not os.path.exists(path):
         os.makedirs(path)
@@ -58,13 +56,13 @@ class Document():
         self.config = config
         self.primary_key = pk
 
+        # The head method should not be necessary if data is unique
         self.data = data.query("pk == @self.primary_key").head(1)
 
         self.filename = self.create_filename(self.data, config["filename_columns"])
         self.directories = config["output_folders"]
 
-        # env get template looks only at subdirectories so don't want absolute path from Home.
-        self.template = 'views/' + config["template"]
+        self.template = config["template"]
 
     def create_render(self):
         """
@@ -114,11 +112,9 @@ def process_data(config):
     Takes specifications in config file to assemble dataframe from data in data directory
     and generate a primary key used to create the letters.
     """
-    # Going up one directory from source to parent directory
-    data_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Making path to data in the sub-directory
-    data_path = data_path + '/data/'+ config["data"]
+    data_path = config["data"]
 
     # Reading in the data raw
     raw_data = pd.read_csv(data_path)
@@ -151,16 +147,16 @@ def process_batch(config_file="letters_config.yml"):
 
     all_data = process_data(config)
 
-    renders = all_data["pk"].unique().tolist()
+    docs = all_data["pk"].unique().tolist()
 
-    def generate_card(render):
+    def generate_doc(doc):
         dat = all_data.copy()
         con = config.copy()
-        doc = Document(render, dat, con)
+        doc = Document(doc, dat, con)
         doc.create_render()
 
-    for render in tqdm(renders):
-        generate_card(render)
+    for doc in tqdm(docs):
+        generate_doc(doc)
 
 def render(config):
     process_batch(config_file = config)
