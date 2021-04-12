@@ -9,10 +9,18 @@ from tqdm import tqdm
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import sys
 import pdfkit
+import argparse
 
-dir = 'html'
+parser = argparse.ArgumentParser()
+parser.add_argument('directory',
+                    help= 'directory of html files converted into pdfs',
+                    type = str)
 
-def pdf(directory):
+args = parser.parse_args()
+
+dir = vars(args)['directory']
+
+def pdf(dir):
 
     renders = []
 
