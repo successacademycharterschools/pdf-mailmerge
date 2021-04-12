@@ -2,7 +2,7 @@
 name = "pdf-mailmerge"
 version = "0.1.0"
 description = "easy command line mail merge to pdf"
-authors = ["Joshua Maymir <joshua.maymir@gmail.com>"]
+authors = ["Joshua <joshua.runs.flies@gmail.org"]
 
 [tool.poetry.dependencies]
 python = "^3.7.1"
