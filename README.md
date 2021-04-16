@@ -6,8 +6,8 @@ Can be configured to generate filenames and subdirectories as well as sort order
 
 ## Install
 
+```
   pip install pdf-mailmerge
+```
 
 ## Usage
-
-  
