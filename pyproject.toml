@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "pdf-mailmerge"
-version = "0.1.0"
+version = "0.1.1"
 description = "easy command line mail merge to pdf"
-authors = ["Joshua <joshua.runs.flies@gmail.org"]
+authors = ["Joshua <joshua.flies.planes@gmail.org>"]
 
 [tool.poetry.dependencies]
 python = "^3.7.1"
