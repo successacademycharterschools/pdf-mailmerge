@@ -5,12 +5,45 @@ import yaml
 from tqdm import tqdm
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import argparse
+from cerberus import Validator
 
-parser = argparse.ArgumentParser(description='produce html files from csv and jinja')
-parser.add_argument('config',
-                    help= 'configuration for mail merging csv into html',
-                    type = str)
+
+validator = Validator(
+    {
+        "data": {"type": "string", "required": True, "empty": False},
+        "template": {"type": "string", "required": True, "empty": False},
+        "identifier_columns": {
+            "type": "list",
+            "required": True,
+            "schema": {"type": "string", "empty": False},
+        },
+        "filename_columns": {
+            "type": "list",
+            "required": True,
+            "minlength": 1,
+            "schema": {"type": "string", "empty": False},
+        },
+        "output_folders": {
+            "type": "list",
+            "required": True,
+            "minlength": 1,
+            "schema": {"type": "string", "empty": False},
+        },
+        "sort": {
+            "type": "list",
+            "required": True,
+            "minlength": 1,
+            "schema": {"type": "string", "empty": False},
+        },
+    }
+)
+
+parser = argparse.ArgumentParser(description="produce html files from csv and jinja")
+parser.add_argument(
+    "config", help="configuration for mail merging csv into html", type=str
+)
 args = parser.parse_args()
+
 
 def populate_jinja_template(pk, template, filename, data, directories):
     """
@@ -27,7 +60,7 @@ def populate_jinja_template(pk, template, filename, data, directories):
     this_dir = os.path.dirname(os.path.abspath(__file__))
 
     # Step 2
-    path = this_dir + 'html'
+    path = this_dir + "html"
 
     if not os.path.exists(path):
         os.makedirs(path)
@@ -35,28 +68,28 @@ def populate_jinja_template(pk, template, filename, data, directories):
     # Step 3
     for directory in directories:
         loc = data[directory].astype(str).unique().tolist()[0]
-        if not os.path.exists(path+"/"+loc):
-            os.makedirs(path+"/"+loc)
-        path = path+"/"+loc
+        if not os.path.exists(path + "/" + loc):
+            os.makedirs(path + "/" + loc)
+        path = path + "/" + loc
 
     # Step 4
-    file_loc = path + f'/{filename}.html'
+    file_loc = path + f"/{filename}.html"
 
-    env = Environment(loader=FileSystemLoader(this_dir, followlinks = True),
-                      autoescape=select_autoescape(['html', 'xml']))
+    env = Environment(
+        loader=FileSystemLoader(this_dir, followlinks=True),
+        autoescape=select_autoescape(["html", "xml"]),
+    )
 
     # Converting data from dataframe form to dict form for jinja2 template
-    template_data = data.to_dict('list')
+    template_data = data.to_dict("list")
     for key, value in template_data.items():
         template_data[key] = value[0]
 
     # Step 5
-    env.get_template(template)\
-        .stream(template_data)\
-        .dump(file_loc)
+    env.get_template(template).stream(template_data).dump(file_loc)
 
-class Document():
 
+class Document:
     def __init__(self, pk, data, config):
 
         self.config = config
@@ -76,12 +109,12 @@ class Document():
         """
 
         card_dat = {
-                "pk": self.primary_key,
-                "template": self.template,
-                "directories": self.directories,
-                "filename": self.filename,
-                "data": self.data
-                }
+            "pk": self.primary_key,
+            "template": self.template,
+            "directories": self.directories,
+            "filename": self.filename,
+            "data": self.data,
+        }
 
         populate_jinja_template(**card_dat)
 
@@ -99,6 +132,7 @@ class Document():
 
         return name
 
+
 def fix_columns(dataframe):
     """
     Takes a dataframe and fixes the column names by (1) making all lowercase,
@@ -107,11 +141,12 @@ def fix_columns(dataframe):
     """
     cols = dataframe.columns
     cols = [col.lower() for col in cols]
-    cols = [re.sub(r'[^\w\s\d]', '', col) for col in cols]
-    cols = [re.sub(r'\s', '_', col) for col in cols]
+    cols = [re.sub(r"[^\w\s\d]", "", col) for col in cols]
+    cols = [re.sub(r"\s", "_", col) for col in cols]
     dataframe.columns = cols
 
     return dataframe
+
 
 def process_data(config):
     """
@@ -132,11 +167,12 @@ def process_data(config):
     raw_data["pk"] = raw_data[config["identifier_columns"][0]].astype(str)
     if len(config["identifier_columns"]) > 1:
         for col in config["identifier_columns"][1:]:
-            raw_data["pk"] = raw_data["pk"] ++ raw_data[col].astype(str)
+            raw_data["pk"] = raw_data["pk"] + +raw_data[col].astype(str)
 
-    raw_data = raw_data.sort_values(by = config["sort"])
+    raw_data = raw_data.sort_values(by=config["sort"])
 
     return raw_data
+
 
 def process_batch(args):
     """
@@ -149,8 +185,11 @@ def process_batch(args):
     """
 
     with open(args.config) as yml:
-        config = yaml.load(yml, Loader = yaml.BaseLoader)
+        maybeConfig = yaml.load(yml, Loader=yaml.BaseLoader)
 
+    if not validator.validate(maybeConfig):
+        raise AssertionError('validation error in configuration file:', validator.errors)
+    config = validator.document
     all_data = process_data(config)
 
     docs = all_data["pk"].unique().tolist()
@@ -164,8 +203,10 @@ def process_batch(args):
     for doc in tqdm(docs):
         generate_doc(doc)
 
+
 def render(args):
     process_batch(args)
+
 
 if __name__ == "__main__":
     render(args)
